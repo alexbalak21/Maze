@@ -16,7 +16,18 @@ function drawArray(arr) {
 		const row = document.createElement('tr');
 		for (let c = 0; c < arr[r].length; c++) {
 			const td = document.createElement('td');
-			if (arr[c][r]) td.classList.add('full');
+			if (arr[c][r]) td.style.backgroundColor = 'black';
+			row.appendChild(td);
+		}
+		display.appendChild(row);
+	}
+}
+
+function drawTable(size) {
+	for (let r = 0; r < size; r++) {
+		const row = document.createElement('tr');
+		for (let c = 0; c < size; c++) {
+			const td = document.createElement('td');
 			row.appendChild(td);
 		}
 		display.appendChild(row);
@@ -48,9 +59,6 @@ function chooseNextBlock() {
 
 	let i = Math.round(Math.random() * (possibleDirections.length - 1));
 
-	console.log(possibleDirections);
-	console.log('Go ', possibleDirections[i]);
-
 	if (possibleDirections[i] == 'u') {
 		y--;
 		arr[x][y] = 0;
@@ -73,11 +81,96 @@ function chooseNextBlock() {
 	}
 }
 let res = 0;
-let i = 0;
-do {
-	res = chooseNextBlock();
-	i++;
-} while (res != 0);
 
-drawArray(arr);
-console.log(i);
+drawTable(20);
+
+let cell = { x: 0, y: 0, d: [] };
+let cells = [cell];
+drawCell(cell);
+
+function generateMaze() {
+	let i = 0;
+	let newCell = null;
+	do {
+		currentCell = cells[cells.length - 1];
+
+		checkDirections(currentCell);
+		if (currentCell.d.length > 0) {
+			newCell = chooseNextCell(currentCell);
+		} else {
+			i = cells.length - 1;
+			for (i; i <= 0; i--) {
+				console.log('FOR');
+				if (cell[l].d.length > 0) {
+					newCell = chooseNextCell(cell[l]);
+				}
+			}
+		}
+		if (newCell) {
+			cells.push(newCell);
+			drawCell(newCell);
+		}
+	} while (i > 0);
+}
+
+function checkDirections(currentCell) {
+	//CAN GO UP
+	if (currentCell.y > 0 && arr[x][y - 1]) currentCell.d.push('u');
+
+	//CAN GO DOWN
+	if (currentCell.y < 19 && arr[x][y + 1]) currentCell.d.push('d');
+
+	//CAN GO LEFT
+	if (currentCell.x > 0 && arr[x - 1][y]) currentCell.d.push('l');
+
+	//CAN GO RIGHT
+	if (currentCell.x < 19 && arr[x + 1][y]) currentCell.d.push('r');
+	return currentCell;
+}
+
+function chooseNextCell(currentCell) {
+	let newCell = { x: 0, y: 0, d: null };
+	let dir = 0;
+	if (currentCell.d.length > 1) {
+		dir = Math.round(Math.random() * (currentCell.d.length - 1));
+	}
+	switch (currentCell.d[dir]) {
+		case 'u':
+			newCell.x = currentCell.x;
+			newCell.y = currentCell.y - 1;
+			currentCell.d.splice(dir, 1);
+			break;
+		case 'd':
+			newCell.x = currentCell.x;
+			newCell.y = currentCell.y + 1;
+			currentCell.d.splice(dir, 1);
+			break;
+		case 'l':
+			newCell.x = currentCell.x - 1;
+			newCell.y = currentCell.y;
+			currentCell.d.splice(dir, 1);
+			break;
+		case 'r':
+			newCell.x = currentCell.x + 1;
+			newCell.y = currentCell.y;
+			currentCell.d.splice(dir, 1);
+			break;
+	}
+	return newCell;
+}
+
+function drawCell(cell) {
+	const rows = document.querySelectorAll('tr');
+	const td = rows[cell.y].querySelectorAll('td');
+	td[cell.x].style.backgroundColor = 'white';
+}
+
+generateMaze(cell);
+
+function travel(arr) {
+	let i = 0;
+	do {
+		i++;
+		arr[i] *= 2;
+	} while (i > 0);
+}

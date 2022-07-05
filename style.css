@@ -15,8 +15,5 @@ table {
 table tr td {
 	height: 40px;
 	width: 40px;
-}
-
-table tr td.full {
 	background-color: black;
 }
