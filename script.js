@@ -24,112 +24,47 @@ function drawArray(arr) {
 }
 
 function drawTable(size) {
+	const table = new Array(size);
+	for (let i = 0; i < size; i++) table[i] = new Array(size);
 	for (let r = 0; r < size; r++) {
 		const row = document.createElement('tr');
 		for (let c = 0; c < size; c++) {
 			const td = document.createElement('td');
 			row.appendChild(td);
+			table[c][r] = 0;
 		}
 		display.appendChild(row);
 	}
+	return table;
 }
 
-const arr = generateArray(20, 20);
+const table = drawTable(20);
 
-let x = 0;
-let y = 0;
-arr[0][0] = 0;
-
-function chooseNextBlock() {
-	//POSSIBLE DIRECTIOS ARRAY U D L R
-	const possibleDirections = [];
-	//CAN GO UP
-	if (y > 0 && arr[x][y - 1]) possibleDirections.push('u');
-
-	//CAN GO DOWN
-	if (y < 19 && arr[x][y + 1]) possibleDirections.push('d');
-
-	//CAN GO LEFT
-	if (x > 0 && arr[x - 1][y]) possibleDirections.push('l');
-
-	//CAN GO RIGHT
-	if (x < 19 && arr[x + 1][y]) possibleDirections.push('r');
-
-	if (possibleDirections.length == 0) return 0;
-
-	let i = Math.round(Math.random() * (possibleDirections.length - 1));
-
-	if (possibleDirections[i] == 'u') {
-		y--;
-		arr[x][y] = 0;
-		return 1;
-	}
-	if (possibleDirections[i] == 'd') {
-		y++;
-		arr[x][y] = 0;
-		return 2;
-	}
-	if (possibleDirections[i] == 'l') {
-		x--;
-		arr[x][y] = 0;
-		return 3;
-	}
-	if (possibleDirections[i] == 'r') {
-		x++;
-		arr[x][y] = 0;
-		return 4;
-	}
-}
-let res = 0;
-
-drawTable(20);
-
-let cell = { x: 0, y: 0, d: [] };
-let cells = [cell];
-drawCell(cell);
-
-function generateMaze() {
-	let i = 0;
-	let newCell = null;
-	do {
-		currentCell = cells[cells.length - 1];
-
-		checkDirections(currentCell);
-		if (currentCell.d.length > 0) {
-			newCell = chooseNextCell(currentCell);
-		} else {
-			i = cells.length - 1;
-			for (i; i <= 0; i--) {
-				console.log('FOR');
-				if (cell[l].d.length > 0) {
-					newCell = chooseNextCell(cell[l]);
-				}
-			}
-		}
-		if (newCell) {
-			cells.push(newCell);
-			drawCell(newCell);
-		}
-	} while (i > 0);
-}
+let cell0 = { x: 0, y: 0, v: '', d: [] };
+let cells = [cell0];
+drawCell(cell0);
 
 function checkDirections(currentCell) {
+	let x = currentCell.x;
+	let y = currentCell.y;
+	let directions = [];
 	//CAN GO UP
-	if (currentCell.y > 0 && arr[x][y - 1]) currentCell.d.push('u');
+	if (y > 0 && !table[x][y - 1]) directions.push('u');
 
 	//CAN GO DOWN
-	if (currentCell.y < 19 && arr[x][y + 1]) currentCell.d.push('d');
+	if (y < 19 && !table[x][y + 1]) directions.push('d');
 
 	//CAN GO LEFT
-	if (currentCell.x > 0 && arr[x - 1][y]) currentCell.d.push('l');
+	if (x > 0 && !table[x - 1][y]) directions.push('l');
 
 	//CAN GO RIGHT
-	if (currentCell.x < 19 && arr[x + 1][y]) currentCell.d.push('r');
-	return currentCell;
+	if (x < 19 && !table[x + 1][y + 1]) directions.push('r');
+	currentCell.d = directions;
+	return directions;
 }
 
 function chooseNextCell(currentCell) {
-	let newCell = { x: 0, y: 0, d: null };
+	let newCell = { x: 0, y: 0, v: '', d: [] };
 	let dir = 0;
 	if (currentCell.d.length > 1) {
 		dir = Math.round(Math.random() * (currentCell.d.length - 1));
@@ -139,21 +74,25 @@ function chooseNextCell(currentCell) {
 			newCell.x = currentCell.x;
 			newCell.y = currentCell.y - 1;
 			currentCell.d.splice(dir, 1);
+			currentCell.v = 'u';
 			break;
 		case 'd':
 			newCell.x = currentCell.x;
 			newCell.y = currentCell.y + 1;
 			currentCell.d.splice(dir, 1);
+			currentCell.v = 'd';
 			break;
 		case 'l':
 			newCell.x = currentCell.x - 1;
 			newCell.y = currentCell.y;
 			currentCell.d.splice(dir, 1);
+			currentCell.v = 'l';
 			break;
 		case 'r':
 			newCell.x = currentCell.x + 1;
 			newCell.y = currentCell.y;
 			currentCell.d.splice(dir, 1);
+			currentCell.v = 'r';
 			break;
 	}
 	return newCell;
@@ -162,15 +101,35 @@ function chooseNextCell(currentCell) {
 function drawCell(cell) {
 	const rows = document.querySelectorAll('tr');
 	const td = rows[cell.y].querySelectorAll('td');
+	table[cell.x][cell.y] = 1;
 	td[cell.x].style.backgroundColor = 'white';
+	td[cell.x].innerText = ;
 }
 
-generateMaze(cell);
-
-function travel(arr) {
+function generateMaze() {
+	let cell = null;
 	let i = 0;
+	let l = 0;
+	let down = true;
 	do {
-		i++;
-		arr[i] *= 2;
+		l++;
+		console.log('LOOP ', l);
+
+		if (down) checkDirections(cells[i]);
+
+		if (cells[i].d.length > 0) {
+			console.log('FOWARD');
+			cell = chooseNextCell(cells[i]);
+			cells.push(cell);
+			down = true;
+			i++;
+		} else {
+			console.log('BACKTARCK');
+			down = false;
+			i--;
+		}
+		drawCell(cell);
 	} while (i > 0);
 }
+
+generateMaze();
