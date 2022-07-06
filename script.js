@@ -40,7 +40,7 @@ function drawTable(size) {
 
 const table = drawTable(20);
 
-let cell0 = { x: 0, y: 0, v: '', d: [] };
+let cell0 = { x: 0, y: 0, w: '', d: [] };
 let cells = [cell0];
 drawCell(cell0);
 
@@ -64,7 +64,7 @@ function checkDirections(currentCell) {
 }
 
 function chooseNextCell(currentCell) {
-	let newCell = { x: 0, y: 0, v: '', d: [] };
+	let newCell = { x: 0, y: 0, w: '', d: [] };
 	let dir = 0;
 	if (currentCell.d.length > 1) {
 		dir = Math.round(Math.random() * (currentCell.d.length - 1));
@@ -74,25 +74,25 @@ function chooseNextCell(currentCell) {
 			newCell.x = currentCell.x;
 			newCell.y = currentCell.y - 1;
 			currentCell.d.splice(dir, 1);
-			currentCell.v = 'u';
+			removeWallUp(currentCell);
 			break;
 		case 'd':
 			newCell.x = currentCell.x;
 			newCell.y = currentCell.y + 1;
 			currentCell.d.splice(dir, 1);
-			currentCell.v = 'd';
+			removeWallDown(currentCell);
 			break;
 		case 'l':
 			newCell.x = currentCell.x - 1;
 			newCell.y = currentCell.y;
 			currentCell.d.splice(dir, 1);
-			currentCell.v = 'l';
+			removeWallLeft(currentCell);
 			break;
 		case 'r':
 			newCell.x = currentCell.x + 1;
 			newCell.y = currentCell.y;
 			currentCell.d.splice(dir, 1);
-			currentCell.v = 'r';
+			removeWallRight(currentCell);
 			break;
 	}
 	return newCell;
@@ -103,29 +103,52 @@ function drawCell(cell) {
 	const td = rows[cell.y].querySelectorAll('td');
 	table[cell.x][cell.y] = 1;
 	td[cell.x].style.backgroundColor = 'white';
-	td[cell.x].innerText = ;
+}
+
+function removeWallUp(currentCell) {
+	const rows = document.querySelectorAll('tr');
+	const td = rows[currentCell.y].querySelectorAll('td');
+	let cell = td[currentCell.x];
+	cell.style.borderTop = '1px solid white';
+}
+
+function removeWallDown(currentCell) {
+	const rows = document.querySelectorAll('tr');
+	const td = rows[currentCell.y].querySelectorAll('td');
+	let cell = td[currentCell.x];
+	cell.style.borderBottom = '1px solid white';
+}
+function removeWallLeft(currentCell) {
+	const rows = document.querySelectorAll('tr');
+	const td = rows[currentCell.y].querySelectorAll('td');
+	let cell = td[currentCell.x];
+	cell.style.borderLeft = '1px solid white';
+}
+function removeWallRight(currentCell) {
+	const rows = document.querySelectorAll('tr');
+	const td = rows[currentCell.y].querySelectorAll('td');
+	let cell = td[currentCell.x];
+	cell.style.borderRight = '1px solid white';
 }
 
 function generateMaze() {
 	let cell = null;
 	let i = 0;
 	let l = 0;
-	let down = true;
+	let forward = true;
 	do {
 		l++;
 		console.log('LOOP ', l);
-
-		if (down) checkDirections(cells[i]);
-
+		if (forward) checkDirections(cells[i]);
 		if (cells[i].d.length > 0) {
 			console.log('FOWARD');
 			cell = chooseNextCell(cells[i]);
 			cells.push(cell);
-			down = true;
+			forward = true;
 			i++;
 		} else {
 			console.log('BACKTARCK');
-			down = false;
+			forward = false;
 			i--;
 		}
 		drawCell(cell);
